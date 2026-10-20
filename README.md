@@ -23,9 +23,18 @@ A broken OpenCode install rarely says why. opencode-doctor audits it in one comm
 ## Install
 
 ```bash
-npm i -g opencode-doctor
+# tarball из релиза: без токена и без npm-логина
+npm i -g https://github.com/rustemmustafingovua-byte/opencode-doctor/releases/download/v0.1.0/opencode-doctor-0.1.0.tgz
 ```
 
+<details>
+<summary>Через GitHub Packages</summary>
+
+```bash
+npm i -g @rustemmustafingovua-byte/opencode-doctor --registry=https://npm.pkg.github.com
+```
+
+</details>
 ## What it does
 
 | | |
