@@ -43,6 +43,24 @@ opencode-doctor
 opencode-doctor --config ~/.config/opencode/opencode.jsonc --json
 ```
 
+## CLI
+
+```
+opencode-doctor — Audit an OpenCode install in one command.
+
+USAGE
+  opencode-doctor
+  opencode-doctor --config ~/.config/opencode/opencode.jsonc --json
+
+COMMANDS / OPTIONS
+  --config <path>  config file to audit (default ~/.config/opencode/opencode.jsonc)
+  --json           machine-readable output
+
+Exit code 1 when the install has an error-level finding.
+
+MIT · https://github.com/rustemmustafingovua-byte
+```
+
 ## Part of a portfolio
 
 | Project | What it does |
