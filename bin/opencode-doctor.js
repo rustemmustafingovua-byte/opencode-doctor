@@ -11,6 +11,19 @@ import { homedir } from "node:os"
 import { join } from "node:path"
 import { audit } from "../src/index.js"
 
+// --- CLI shell: --help / --version -------------------------------------------
+const HELP = "opencode-doctor — Audit an OpenCode install in one command.\n\nUSAGE\n  opencode-doctor\n  opencode-doctor --config ~/.config/opencode/opencode.jsonc --json\n\nCOMMANDS / OPTIONS\n  --config <path>  config file to audit (default ~/.config/opencode/opencode.jsonc)\n  --json           machine-readable output\n\nExit code 1 when the install has an error-level finding.\n\nMIT · https://github.com/rustemmustafingovua-byte"
+const VERSION = "0.1.0"
+if (process.argv.includes("--help") || process.argv.includes("-h")) {
+  console.log(HELP)
+  process.exit(0)
+}
+if (process.argv.includes("--version") || process.argv.includes("-V")) {
+  console.log(VERSION)
+  process.exit(0)
+}
+
+
 const argv = process.argv.slice(2)
 const arg = (n, d) => {
   const i = argv.indexOf(n)
