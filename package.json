@@ -1,0 +1,43 @@
+{
+  "name": "opencode-doctor",
+  "version": "0.1.0",
+  "description": "A broken OpenCode install rarely says why. opencode-doctor audits it in one command: does the config parse, which providers actually have credentials, is a whitelist hiding everything, are paid models still in the picker, do the MCP servers point at files that exist.",
+  "type": "module",
+  "license": "MIT",
+  "bin": {
+    "opencode-doctor": "bin/opencode-doctor.js"
+  },
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "keywords": [
+    "opencode",
+    "doctor",
+    "diagnostics",
+    "config",
+    "devtools",
+    "agents",
+    "audit"
+  ],
+  "files": [
+    "bin",
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "lint": "node --check src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rustemmustafingovua-byte/opencode-doctor.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rustemmustafingovua-byte/opencode-doctor/issues"
+  },
+  "homepage": "https://github.com/rustemmustafingovua-byte/opencode-doctor"
+}
