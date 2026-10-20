@@ -28,7 +28,7 @@ npm i -g https://github.com/rustemmustafingovua-byte/opencode-doctor/releases/do
 ```
 
 <details>
-<summary>Через GitHub Packages</summary>
+<summary>Через GitHub Packages (нужен токен со scope read:packages)</summary>
 
 ```bash
 npm i -g @rustemmustafingovua-byte/opencode-doctor --registry=https://npm.pkg.github.com
