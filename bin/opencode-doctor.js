@@ -9,7 +9,7 @@
 import { readFileSync, existsSync } from "node:fs"
 import { homedir } from "node:os"
 import { join } from "node:path"
-import { audit } from "../src/index.js"
+import { auditAsync } from "../src/index.js"
 
 // --- CLI shell: --help / --version -------------------------------------------
 const HELP = "opencode-doctor — Audit an OpenCode install in one command.\n\nUSAGE\n  opencode-doctor\n  opencode-doctor --config ~/.config/opencode/opencode.jsonc --json\n\nCOMMANDS / OPTIONS\n  --config <path>  config file to audit (default ~/.config/opencode/opencode.jsonc)\n  --json           machine-readable output\n\nExit code 1 when the install has an error-level finding.\n\nMIT · https://github.com/rustemmustafingovua-byte"
@@ -32,7 +32,7 @@ const arg = (n, d) => {
 const authPath = join(homedir(), ".local", "share", "opencode", "auth.json")
 const auth = existsSync(authPath) ? JSON.parse(readFileSync(authPath, "utf8")) : {}
 
-const report = audit({
+const report = await auditAsync({
   configPath: arg("--config"),
   env: process.env,
   auth,

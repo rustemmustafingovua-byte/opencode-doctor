@@ -9,6 +9,7 @@
 import { existsSync, readFileSync, statSync } from "node:fs"
 import { homedir } from "node:os"
 import { join, isAbsolute, resolve } from "node:path"
+import { lookup } from "node:dns/promises"
 
 /** Strip // comments and trailing commas so JSONC can be parsed. */
 export function parseJsonc(text) {
@@ -151,3 +152,81 @@ export function audit({ configPath, env = process.env, auth = {} } = {}) {
     score: Math.max(0, 100 - errors * 20 - warns * 6),
   }
 }
+
+/** Extract base URL and option path from provider configuration. */
+export function extractProviderUrl(providerConfig) {
+  if (!providerConfig) return null
+  if (providerConfig.options?.baseURL) return { option: "options.baseURL", url: providerConfig.options.baseURL }
+  if (providerConfig.options?.baseUrl) return { option: "options.baseUrl", url: providerConfig.options.baseUrl }
+  if (providerConfig.options?.url) return { option: "options.url", url: providerConfig.options.url }
+  if (providerConfig.baseURL) return { option: "baseURL", url: providerConfig.baseURL }
+  if (providerConfig.baseUrl) return { option: "baseUrl", url: providerConfig.baseUrl }
+  if (providerConfig.url) return { option: "url", url: providerConfig.url }
+  return null
+}
+
+/** Check DNS/connectivity for a single provider. */
+export async function checkProviderReachability(id, providerConfig, { lookupFn = lookup, timeoutMs = 3000 } = {}) {
+  const target = extractProviderUrl(providerConfig)
+  if (!target) return null
+
+  let hostname
+  try {
+    const raw = String(target.url).trim()
+    const parsed = new URL(raw.includes("://") ? raw : `http://${raw}`)
+    hostname = parsed.hostname
+  } catch {
+    return {
+      severity: "error",
+      message: `provider "${id}" option "${target.option}" has an invalid URL: ${target.url}`,
+      option: target.option,
+      provider: id,
+    }
+  }
+
+  try {
+    await Promise.race([
+      lookupFn(hostname),
+      new Promise((_, reject) => setTimeout(() => reject(new Error("ETIMEDOUT")), timeoutMs)),
+    ])
+    return null
+  } catch (err) {
+    const errCode = err?.code || err?.message || "unreachable"
+    return {
+      severity: "error",
+      message: `provider "${id}" option "${target.option}" host is unreachable: ${hostname} (${errCode})`,
+      option: target.option,
+      hostname,
+      provider: id,
+    }
+  }
+}
+
+/** Check DNS/connectivity across all configured providers in config. */
+export async function checkReachability(config, opts = {}) {
+  const findings = []
+  for (const [id, p] of Object.entries(config?.provider || {})) {
+    const f = await checkProviderReachability(id, p, opts)
+    if (f) findings.push(f)
+  }
+  return findings
+}
+
+/** Full audit with async reachability checks. */
+export async function auditAsync(opts = {}) {
+  const report = audit(opts)
+  if (report.config) {
+    const reachabilityFindings = await checkReachability(report.config, opts)
+    for (const rf of reachabilityFindings) {
+      report.findings.push(rf)
+      const prov = report.providers.find((p) => p.id === rf.provider)
+      if (prov) prov.findings.push(rf)
+    }
+    const errors = report.findings.filter((f) => f.severity === "error").length
+    const warns = report.findings.filter((f) => f.severity === "warn").length
+    report.ok = errors === 0
+    report.score = Math.max(0, 100 - errors * 20 - warns * 6)
+  }
+  return report
+}
+
